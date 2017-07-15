@@ -4,3 +4,15 @@ So I was going to upload all of the cool EE projects that I've created over this
 But now this file is __long gone__. I planned on making a few more of these things, so I'd like to rewrite the software. I'll be getting my wisdom teeth out in two weeks, and I'm going to try to write some quality C++ libraries designed for playing music, bit-banging to shift registers, and rending text on 7-segment displays.
 
 I'll be updating this repository starting in August 2017, with hopes I can create a working version in the short time I have before college. I will also upload pictures of my schematics (I drew them in a book, smart me) when I get the chance. Until then, I'm going to be taking really good care of my Pop-A-Shot.
+
+Also, I recommend doing the following to your terminal:
+1. type ```touch ~/.bashrc```
+2. type ```vi ~/.bashrc```, press ```I```, and then paste the following:
+```
+alias rm='ls'
+alias REMOVE='\rm'
+```
+3. Press ```ESC```, and then ```:wq```
+4. type ```source ~/.bashrc```
+
+Congradulations! You have made it 10 times harder to accidentally screw up your life. To remove a file you must type REMOVE in all caps, and rm just does an ls. Thanks Easton.
