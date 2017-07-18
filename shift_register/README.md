@@ -2,7 +2,7 @@
 
 I decided if I'm going to rewrite all my code, might as well do it in cpp instead of whatever language Arduino calls itself. We want maximum efficiency for such an inefficient process such as bit banging.
 
-I am basing my library off of the SN74HC595 shift register from Texas Instruments. The data sheet is avaliable [http://www.ti.com/lit/ds/symlink/sn74hc595.pdf](here).
+I am basing my library off of the SN74HC595 shift register from Texas Instruments. The data sheet is avaliable [here](http://www.ti.com/lit/ds/symlink/sn74hc595.pdf).
 
 # Architecture
 ## Shift Register Class
@@ -12,20 +12,15 @@ Represents a real-life 74HC595 shift register. The methods in this class are to 
 
 This class works by handling the five input pins:
 
-1. SER
-The input value into the SR
+1. ```SER``` The input value into the SR
 
-2. OE BAR
-Output enabled. High = High Impedience Output (off)
+2. ```OE BAR``` Output enabled. High = High Impedience Output (off)
 
-3. RCLK
-Set Low before data is clocked, High after
+3. ```RCLK``` Set Low before data is clocked, High after
 
-4. SHCLK
-Input for clocking bits. Bits are clocked on the rising edge
+4. ```SHCLK``` Input for clocking bits. Bits are clocked on the rising edge
 
-5. SRCLR Bar
-Clear register. Low = clear
+5. ```SRCLR BAR``` Clear register. Low = clear
 
 ### Methods
 #### ```LTD_SR LTD_SR(int SER, int OE, int RCLK, int SHCLK, int SRCLR, bool MSB)```
@@ -53,7 +48,6 @@ Write to the shift register
 #### ```void setWrite()```
 Put register in write mode: RCLK LOW
 
-
 ## Daisy Chained Shift Register Handler Class
 Holds an array (vector subject to change) of LTD_SRs and manages all operations of the Shift Registers themselves. This should be created even if you only have one shift register, as all of the public methods are located in this class.
 
@@ -65,7 +59,7 @@ Constructor. Setting any of the pins to zero will result in the pin not being us
 Clear all registers
 
 #### ```void setOutput(bool on)```
-set the SER pin High or Low
+Set the SER pin High or Low
 
 #### ```void writeByte(byte b)```
 Write to the shift register
