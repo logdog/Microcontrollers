@@ -57,8 +57,15 @@ void LTD_SRL::writeByte(char b) {
 
 	_setWrite();
 	for(int i = 0; i < 8; i++) {
-		_setPin(SER, bool(abs(b % 2)));
-		b /= 2;
+		if(MSB) {
+			// MSB first (decimal 1 -> 1000 0000)
+			_setPin(SER, bool(abs(  (b / 128) % 2 )));
+			b <<= 1;
+		} else {
+			// LSB first (decimal 1 -> 0000 0001)
+			_setPin(SER, bool(abs(b % 2)));
+			b >>= 1;
+		}
 		_clock();
 	}
 	_setRead();
@@ -75,8 +82,15 @@ void LTD_SRL::writeBytes(char *b) {
 	for(int i = numRegisters-1; i >= 0; i--) {
 		char v = b[i];
 		for(int j = 0; j < 8; j++) {
-			_setPin(SER, bool(abs(v % 2)));
-			v /= 2;
+			if(MSB) {
+				// MSB first (decimal 1 -> 1000 0000)
+				_setPin(SER, bool(abs(  (v / 128) % 2 )));
+				v <<= 1;
+			} else {
+				// LSB first (decimal 1 -> 0000 0001)
+				_setPin(SER, bool(abs(v % 2)));
+				v >>= 1;
+			}
 			_clock();
 		}
 	}
@@ -104,8 +118,8 @@ LTD_SRL::LTD_SRL(int SER, int OE, int RCLK, int SHCLK, int SRCLR, int numRegiste
 	this->SRCLR = SRCLR;
 
 	this->numRegisters = numRegisters;
-	this->MSB = MSB; // Not Implemented
-	this->LTR = LTR; // Not Implemented
+	this->MSB = MSB;
+	this->LTR = LTR; // Not implemented
 
 	_pinMode(SER, OUTPUT);
 	_pinMode(OE, OUTPUT);
