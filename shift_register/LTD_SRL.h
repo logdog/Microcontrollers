@@ -21,6 +21,7 @@ private:
 	bool MSB, LTR;
 	std::vector<char> values;
 
+	void _clock();
 	bool _pinMode(int pin);
 	bool _setPin(int pin, bool high);
 	void _setRead();

@@ -47,6 +47,9 @@ Return the value stored in the register. Note: The class keeps track of the valu
 Return the values stored in the registers. See getValue for details.
 
 ### Private Methods
+#### ```void clock()```
+Sets SHCLK High and then Low
+
 #### ```bool _pinMode(int pin)```
 Setup method to set the pinModes if they are not set to zero
 

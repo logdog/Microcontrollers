@@ -4,6 +4,12 @@
 
 // private methods
 
+void LTD_SRL::_clock() {
+	_setPin(SHCLK, HIGH);
+	// delay?
+	_setPin(SHCLK, LOW);
+}
+
 bool LTD_SRL::_pinMode(int pin) {
 	if (pin == 0) return false;
 	pinMode(pin, OUTPUT);
@@ -19,28 +25,62 @@ bool LTD_SRL::_setPin(int pin, bool high) {
 }
 
 void LTD_SRL::_setRead() {
-	return;
+	_setPin(RCLK, LOW);
 }
 
 void LTD_SRL::_setWrite() {
-	return;
+	_setPin(RCLK, HIGH);
 }
 
 // public methods
 void LTD_SRL::clear() {
-	return;
+	_setPin(SRCLR, LOW);
+	_setWrite();
+	// delay?
+	_setRead();
+	_setPin(SRCLR, HIGH);
 }
 
 bool LTD_SRL::setOutput(bool on) {
-	return true;
+	if (on) {
+		_setPin(OE, LOW);
+		return true; // on
+	} else {
+		_setPin(OE, HIGH);
+		return false; // off
+	}
 }
 
-void LTD_SRL::pushByte(char b) { // "writeByte"
-	return;
+void LTD_SRL::writeByte(char b) {
+	values.insert(values.begin(), b);
+	values.pop_back();
+
+	_setWrite();
+	for(int i = 0; i < 8; i++) {
+		_setPin(SER, bool(abs(b % 2)));
+		b /= 2;
+		_clock();
+	}
+	_setRead();
 }
 
-void LTD_SRL::pushBytes(char *b) {
-	return;
+void LTD_SRL::writeBytes(char *b) {
+	// update values in reverse order
+	for(int i = numRegisters-1; i >= 0; i--) {
+		values.insert(values.begin(), b[i]);
+		values.pop_back();
+	}
+
+	_setWrite();
+	for(int i = numRegisters-1; i >= 0; i--) {
+		char v = b[i];
+		for(int j = 0; j < 8; j++) {
+			_setPin(SER, bool(abs(v % 2)));
+			v /= 2;
+			_clock();
+		}
+	}
+	_setRead();
 }
 
 char LTD_SRL::getValue(int regID) {
@@ -49,7 +89,7 @@ char LTD_SRL::getValue(int regID) {
 
 char* LTD_SRL::getValues() {
 	char cval[values.size()];
-	for(int i = 0; i < values.size(); i++) {
+	for(int i = 0; i < numRegisters; i++) {
 		cval[i] = values.at(i);
 	}
 	return &cval;
