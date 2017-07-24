@@ -26,6 +26,7 @@ private:
 	bool _setPin(int pin, bool high);
 	void _setRead();
 	void _setWrite();
+	void _writeByte(char value);
 
 public:
 	LTD_SRL(int SER, int OE, int RCLK, int SHCLK, int SRCLR, int numRegisters, bool MSB, bool LTR);

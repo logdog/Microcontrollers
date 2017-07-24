@@ -32,6 +32,22 @@ void LTD_SRL::_setWrite() {
 	_setPin(RCLK, HIGH);
 }
 
+void LTD_SRL::_writeByte(char value) {
+	for(int i = 0; i < 8; i++) {
+		if(MSB) {
+			// MSB first (decimal 1 -> 0000 0001)
+			_setPin(SER, bool(abs(value % 2)));
+			value >>= 1;
+			
+		} else {
+			// LSB first (decimal 1 -> 1000 0000)
+			_setPin(SER, bool(abs(  (value / 128) % 2 )));
+			value <<= 1;
+		}
+		_clock();
+	}
+}
+
 // public methods
 void LTD_SRL::clear() {
 	_setPin(SRCLR, LOW);
@@ -52,46 +68,45 @@ bool LTD_SRL::setOutput(bool on) {
 }
 
 void LTD_SRL::writeByte(char b) {
-	values.insert(values.begin(), b);
-	values.pop_back();
+	// update vector
+	if(LTR) {
+		values.insert(values.begin(), b);
+		values.pop_back();
+	} else {
+		values.push_back(b);
+		values.erase(values.begin());
+	}
 
 	_setWrite();
-	for(int i = 0; i < 8; i++) {
-		if(MSB) {
-			// MSB first (decimal 1 -> 1000 0000)
-			_setPin(SER, bool(abs(  (b / 128) % 2 )));
-			b <<= 1;
-		} else {
-			// LSB first (decimal 1 -> 0000 0001)
-			_setPin(SER, bool(abs(b % 2)));
-			b >>= 1;
-		}
-		_clock();
-	}
+	_writeByte(b); // not in if statement because this will be executed every time
 	_setRead();
+	
 }
 
 void LTD_SRL::writeBytes(char *b) {
-	// update values in reverse order
-	for(int i = numRegisters-1; i >= 0; i--) {
-		values.insert(values.begin(), b[i]);
-		values.pop_back();
+	// update values in reverse order if LTR true
+	if (LTR) {
+		for(int i = numRegisters-1; i >= 0; i--) {
+			values.insert(values.begin(), b[i]);
+			values.pop_back();
+			_writeByte(b[i]);
+		}
+	} else {
+		for(int i = 0; i < numRegisters; i++) {
+			values.push_back(b[i]);
+			values.erase(values.begin());
+			_writeByte(b[i]);
+		}
 	}
 
+	for(int i = )
+	
+
 	_setWrite();
-	for(int i = numRegisters-1; i >= 0; i--) {
+	for(int i = startIndex; i >= 0; i--) {
 		char v = b[i];
 		for(int j = 0; j < 8; j++) {
-			if(MSB) {
-				// MSB first (decimal 1 -> 1000 0000)
-				_setPin(SER, bool(abs(  (v / 128) % 2 )));
-				v <<= 1;
-			} else {
-				// LSB first (decimal 1 -> 0000 0001)
-				_setPin(SER, bool(abs(v % 2)));
-				v >>= 1;
-			}
-			_clock();
+			for(int i = 0; i < 8; i++) {
 		}
 	}
 	_setRead();
@@ -111,15 +126,15 @@ char* LTD_SRL::getValues() {
 
 // constructor
 LTD_SRL::LTD_SRL(int SER, int OE, int RCLK, int SHCLK, int SRCLR, int numRegisters, bool MSB, bool LTR) {
-	this->SER = SER;
-	this->OE = OE; // Not Implemented
-	this->RCLK = RCLK; // "latch"
-	this->SHCLK = SHCLK;
-	this->SRCLR = SRCLR;
+	this->SER = SER;     // serial data in
+	this->OE = OE;     	 // LOW = output enabled
+	this->RCLK = RCLK; 	 // "latch" pin (register clock)
+	this->SHCLK = SHCLK; // flip flop clock
+	this->SRCLR = SRCLR; // LOW = clear
 
 	this->numRegisters = numRegisters;
-	this->MSB = MSB;
-	this->LTR = LTR; // Not implemented
+	this->MSB = MSB; // Should be true by default
+	this->LTR = LTR; // Should be true by default
 
 	_pinMode(SER, OUTPUT);
 	_pinMode(OE, OUTPUT);
