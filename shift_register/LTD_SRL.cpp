@@ -1,6 +1,11 @@
 
 #include "Arduino.h"
 #include "LTD_SRL.h"
+#include <cmath>
+#include <stdlib.h>
+// #define LOW false
+// #define HIGH true
+// #define OUTPUT true
 
 // private methods
 
@@ -10,7 +15,7 @@ void LTD_SRL::_clock() {
 	_setPin(SHCLK, LOW);
 }
 
-bool LTD_SRL::_pinMode(int pin) {
+bool LTD_SRL::_pinMode(int pin, bool output) {
 	if (pin == 0) return false;
 	pinMode(pin, OUTPUT);
 	return true;
@@ -36,12 +41,12 @@ void LTD_SRL::_writeByte(char value) {
 	for(int i = 0; i < 8; i++) {
 		if(MSB) {
 			// MSB first (decimal 1 -> 0000 0001)
-			_setPin(SER, bool(abs(value % 2)));
+			_setPin(SER, bool(std::abs(float(value % 2))));
 			value >>= 1;
 			
 		} else {
 			// LSB first (decimal 1 -> 1000 0000)
-			_setPin(SER, bool(abs(  (value / 128) % 2 )));
+			_setPin(SER, bool(std::abs(float((value / 128) % 2))));
 			value <<= 1;
 		}
 		_clock();
@@ -85,6 +90,7 @@ void LTD_SRL::writeByte(char b) {
 
 void LTD_SRL::writeBytes(char *b) {
 	// update values in reverse order if LTR true
+	_setWrite();
 	if (LTR) {
 		for(int i = numRegisters-1; i >= 0; i--) {
 			values.insert(values.begin(), b[i]);
@@ -98,17 +104,6 @@ void LTD_SRL::writeBytes(char *b) {
 			_writeByte(b[i]);
 		}
 	}
-
-	for(int i = )
-	
-
-	_setWrite();
-	for(int i = startIndex; i >= 0; i--) {
-		char v = b[i];
-		for(int j = 0; j < 8; j++) {
-			for(int i = 0; i < 8; i++) {
-		}
-	}
 	_setRead();
 }
 
@@ -117,11 +112,11 @@ char LTD_SRL::getValue(int regID) {
 }
 
 char* LTD_SRL::getValues() {
-	char cval[values.size()];
+	char* cval = (char*) malloc(numRegisters * sizeof(char)); //use heap, not stack
 	for(int i = 0; i < numRegisters; i++) {
-		cval[i] = values.at(i);
+		cval[i] = char(values.at(i));
 	}
-	return &cval;
+	return cval;
 }
 
 // constructor
@@ -143,7 +138,6 @@ LTD_SRL::LTD_SRL(int SER, int OE, int RCLK, int SHCLK, int SRCLR, int numRegiste
 	_pinMode(SRCLR, OUTPUT);
 
 	for(int i = 0; i < numRegisters; i++) {
-		this->values.push(0); // all registers start with the value of zero
+		this->values.push_back(0); // all registers start with the value of zero
 	}
 }
-

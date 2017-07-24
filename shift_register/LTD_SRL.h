@@ -12,7 +12,7 @@ See README.md for details on the class itself.
 #ifndef LTD_SRL_H
 #define LTD_SRL_H
 
-#include "Arduino.h"
+// #include "Arduino.h"
 #include <vector>
 
 class LTD_SRL {
@@ -22,7 +22,7 @@ private:
 	std::vector<char> values;
 
 	void _clock();
-	bool _pinMode(int pin);
+	bool _pinMode(int pin, bool output);
 	bool _setPin(int pin, bool high);
 	void _setRead();
 	void _setWrite();
@@ -40,5 +40,4 @@ public:
 	char getValue(int regID);
 	char* getValues();
 };
-
 #endif // LTD_SRL_H
